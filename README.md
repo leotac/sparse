@@ -1,4 +1,4 @@
-sparse
+Sparse
 ======
 
 Sparse Representation
