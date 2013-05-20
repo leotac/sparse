@@ -8,7 +8,20 @@ def zero_norm(x, epsilon = 0.00001):
    """
    Compute 0-norm with precision epsilon
    """
-   return sum(1 for i in x if i >= epsilon)
+   return sum(1 for i in x if abs(i) >= epsilon)
+
+def zero_idx(x, epsilon = 0.00001):
+   """
+   Get indices of zero elements 
+   """
+   return [i for i in range(len(x)) if abs(x[i]) < epsilon]
+
+def nonzero_idx(x, epsilon = 0.00001):
+   """
+   Get indices of nonzero elements 
+   """
+   return [i for i in range(len(x)) if abs(x[i]) >= epsilon]
+
 
 def shrinkage(z,gamma):
    """

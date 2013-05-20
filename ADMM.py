@@ -53,10 +53,10 @@ def ADMM_BPDN(A,s,l):
       prim_epsi = sqrt(N)*epsi_abs + epsi_rel*max(linalg.norm(xks[k]),linalg.norm(yks[k]))
       dual_epsi = sqrt(N)*epsi_abs + epsi_rel*linalg.norm(uks[k])
       
-      #print prim_resid, dual_resid 
-      #print prim_epsi, dual_epsi
+      print prim_resid, dual_resid 
+      print prim_epsi, dual_epsi
  
-   return xks[k-1]
+   return xks[k]
 
 
 def ADMM_ConstrBP(A,s,epsilon):
@@ -125,8 +125,8 @@ def ADMM_ConstrBP(A,s,epsilon):
       prim_epsi = sqrt(N)*epsi_abs + epsi_rel*max(linalg.norm(xks[k]),linalg.norm(yks[k]))
       dual_epsi = sqrt(N)*epsi_abs + epsi_rel*linalg.norm(uks[k])
       
-      #print prim_resid, dual_resid 
-      #print prim_epsi, dual_epsi
+      print prim_resid, dual_resid 
+      print prim_epsi, dual_epsi
  
-   return xks[k-1]
+   return xks[k]
 
