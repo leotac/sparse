@@ -16,6 +16,20 @@ def zero_idx(x, epsilon = 0.00001):
    """
    return [i for i in range(len(x)) if abs(x[i]) < epsilon]
 
+def spark(A):
+   """
+   Get spark of matrix A, defined as min(N,rank(A)+1)
+   """
+   return min(A.shape[1],linalg.matrix_rank(A) + 1)
+
+def mu(A):
+   """
+   Get mutual coherence
+      mu(A) = max{k,l} (a_k'*a_l) / (||a_k||_2*||a_l||_2)
+   """
+   return max([dot(A[:,l],A[:,k])/(norm(A[:,l])*norm(A[:,k])) for k in range(N) for l in range(N) if l>k]) 
+
+
 def nonzero_idx(x, epsilon = 0.00001):
    """
    Get indices of nonzero elements 
