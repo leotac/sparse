@@ -61,3 +61,11 @@ def gen_rand_inst(M, N, noise=False):
    s = dot(A,x) + nu
    return A,x,s
 
+def gen_P_inst(M, N, P, noise=False):
+   """
+   Generate a MxN dictionary and P random signals s.
+   """
+   A = random.random((M,N))
+   S = random.random((M,P))
+   return A,S
+

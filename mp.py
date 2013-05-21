@@ -36,7 +36,7 @@ def mp(B,s,epsilon):
 
 
 
-def omp(A,s,epsilon):
+def omp(A,s,epsilon, L=None):
    """
    Orthogonal Matching Pursuit
    Solve the problem:
@@ -54,9 +54,12 @@ def omp(A,s,epsilon):
    r = s
    max_it = 1000
    i = 0
+   
+   if L is None:
+      L = N
 
    columns = []
-   while i <= max_it and linalg.norm(r) >= epsilon:
+   while i <= max_it and linalg.norm(r) >= epsilon and len(columns) <= L:
       k_hat = argmax([abs(dot(A[:,k],r)/linalg.norm(A[:,k])) for k in range(N)])
       columns.append(k_hat)
 
