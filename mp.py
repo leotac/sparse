@@ -1,13 +1,14 @@
 from numpy import *
 import sparse
 
-def mp(A,s,epsilon):
+def mp(B,s,epsilon):
    """
    Matching Pursuit
    Solve the problem:
       min ||x||_0 s.t. ||Ax - s|| <= epsilon
    Select the best column, update its coefficient
    """
+   A = B.copy()
    (M,N) = A.shape
    x = zeros((N,1))
    
@@ -15,6 +16,10 @@ def mp(A,s,epsilon):
    r = s
    max_it = 10000
    i = 0
+
+   #for k in range(N):
+   #   A[:,k] /= linalg.norm(A[:,k])
+
    while i <= max_it and linalg.norm(r) >= epsilon:
       k_hat = argmax([abs(dot(A[:,k],r)/linalg.norm(A[:,k])) for k in range(N)])
       x_hat = dot(A[:,k_hat],r)/dot(A[:,k_hat],A[:,k_hat])
@@ -25,7 +30,7 @@ def mp(A,s,epsilon):
       i += 1
       
       r = s - dot(A,xs[i])
-      #print i,k_hat,x_hat, linalg.norm(r)
+      print i,k_hat,x_hat, linalg.norm(r)
 
    return xs[i]
 
@@ -39,8 +44,11 @@ def omp(A,s,epsilon):
 
    Select the best new columns, update all the coefficients (not just the new one)
    """
+   #TODO vectorized S
+
    (M,N) = A.shape
-   x = zeros((N,1))
+   P = s.shape[1] # Number of signals. Only works for P=1, at the moment!
+   x = zeros((N,P))
    
    xs = [x]
    r = s
@@ -64,6 +72,6 @@ def omp(A,s,epsilon):
       
       i += 1
       r = s - dot(A,xs[i])
-      print i,k_hat, linalg.norm(r)
+      #print i,k_hat, linalg.norm(r)
 
    return xs[i]

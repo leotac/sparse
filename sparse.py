@@ -53,7 +53,7 @@ def gen_rand_inst(M, N, noise=False):
    A = random.random((M,N))
    x = random.random((N,1))
    for (i,val) in enumerate(x):
-      if random.random() >= 0.5:
+      if random.random() >= 0.2:
          x[i] = 0
    nu = 0
    if noise:
