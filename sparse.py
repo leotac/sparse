@@ -16,6 +16,11 @@ def zero_idx(x, epsilon = 0.00001):
    """
    return [i for i in range(len(x)) if abs(x[i]) < epsilon]
 
+def normalize(A):
+   for k in range(A.shape[1]):
+      A[:,k] /= linalg.norm(A[:,k])
+   return
+
 def spark(A):
    """
    Get spark of matrix A, defined as min(N,rank(A)+1)
@@ -61,11 +66,13 @@ def gen_rand_inst(M, N, noise=False):
    s = dot(A,x) + nu
    return A,x,s
 
-def gen_P_inst(M, N, P, noise=False):
+def gen_P_inst(M, N, P, norm=False):
    """
    Generate a MxN dictionary and P random signals s.
    """
    A = random.random((M,N))
+   if norm:
+      normalize(A)
    S = random.random((M,P))
    return A,S
 

@@ -36,7 +36,7 @@ def mp(B,s,epsilon):
 
 
 
-def omp(AA,s,epsilon, L=None):
+def omp(AA,s,epsilon=None, L=None):
    """
    Orthogonal Matching Pursuit
    Solve the problem:
@@ -45,6 +45,7 @@ def omp(AA,s,epsilon, L=None):
    Select the best new columns, update all the coefficients (not just the new one)
    """
    #TODO vectorized S
+   # Very inefficient 
 
    A = AA.copy()
    (M,N) = A.shape
@@ -56,7 +57,11 @@ def omp(AA,s,epsilon, L=None):
    r = s
    max_it = 1000
    i = 0
-   
+  
+   if epsilon is None:
+      epsilon = 0 
+      L = N/10
+
    if L is None:
       L = N
    
@@ -65,7 +70,7 @@ def omp(AA,s,epsilon, L=None):
    #   A[:,k] /= linalg.norm(A[:,k])
 
    columns = []
-   while i <= max_it and linalg.norm(r) >= epsilon and len(columns) <= L:
+   while i <= max_it and linalg.norm(r) >= epsilon and len(columns) < L:
       k_hat = argmax([abs(dot(A[:,k],r)/linalg.norm(A[:,k])) for k in range(N)])
       columns.append(k_hat)
       # Select columns corresponding to nonzero coefficients

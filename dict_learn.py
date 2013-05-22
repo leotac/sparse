@@ -5,6 +5,7 @@ from numpy import *
 import mp
 import sparse
 import scipy.sparse.linalg
+import sklearn.linear_model
 
 def ksvd(AA,S,max_iter=10):
    M,N = AA.shape
@@ -18,8 +19,14 @@ def ksvd(AA,S,max_iter=10):
    while i <= max_iter:
       
       # SMV
-      for p in range(P):
-         X[:,p] = mp.omp(A,S[:,p].reshape(M,1),0.1).flatten()
+      #for p in range(P):
+      #   X[:,p] = mp.omp(A,S[:,p].reshape(M,1),0.1).flatten()
+     
+      # MMV
+      # Default: no residual tolerance, max nonzeros 10%
+      # Assume dictionary A is normalized! 
+      X = sklearn.linear_model.orthogonal_mp(A,S)
+      
       #print A,X
       print "-----------------"
       print i,linalg.norm(S - dot(A,X))
@@ -39,7 +46,10 @@ def ksvd(AA,S,max_iter=10):
          #print dot(A[:,l].reshape(M,1),X[l,:].reshape(1,P)) 
          
          #u,s,v = scipy.sparse.linalg.svds(E, k = 1)
-         u,s,v = scipy.sparse.linalg.svds(E_w, k = 1)
+         try:
+            u,s,v = scipy.sparse.linalg.svds(E_w, k = 1)
+         except:
+            continue
          #print "e",E
          #print "USV", u,s,v
          A[:,l] = u.flatten()
