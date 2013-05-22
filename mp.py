@@ -36,7 +36,7 @@ def mp(B,s,epsilon):
 
 
 
-def omp(A,s,epsilon, L=None):
+def omp(AA,s,epsilon, L=None):
    """
    Orthogonal Matching Pursuit
    Solve the problem:
@@ -46,8 +46,10 @@ def omp(A,s,epsilon, L=None):
    """
    #TODO vectorized S
 
+   A = AA.copy()
    (M,N) = A.shape
-   P = s.shape[1] # Number of signals. Only works for P=1, at the moment!
+   # Number of signals. Only works for P=1, at the moment!
+   P = s.shape[1]
    x = zeros((N,P))
    
    xs = [x]
@@ -57,24 +59,24 @@ def omp(A,s,epsilon, L=None):
    
    if L is None:
       L = N
+   
+   # Normalization
+   #for k in range(N):
+   #   A[:,k] /= linalg.norm(A[:,k])
 
    columns = []
    while i <= max_it and linalg.norm(r) >= epsilon and len(columns) <= L:
       k_hat = argmax([abs(dot(A[:,k],r)/linalg.norm(A[:,k])) for k in range(N)])
       columns.append(k_hat)
-
       # Select columns corresponding to nonzero coefficients
-      A_w = A.take(columns,axis=1)
-      # Compute coefficient for selected columns
-      x_sparse = dot(dot(linalg.inv(dot(A_w.T,A_w)),A_w.T),s) 
+      x_sparse, _, _, _ = linalg.lstsq(A[:,columns],s) 
       # Construct new solution
       x_star = zeros((N,1))
       for i,idx in enumerate(columns):
          x_star[idx] = x_sparse[i]
       xs.append(x_star)
-      
       i += 1
-      r = s - dot(A,xs[i])
+      r = s - dot(A[:,columns],x_sparse)
       #print i,k_hat, linalg.norm(r)
 
-   return xs[i]
+   return x_star

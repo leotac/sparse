@@ -69,3 +69,34 @@ def gen_P_inst(M, N, P, noise=False):
    S = random.random((M,P))
    return A,S
 
+
+class DCT(object):
+
+   def __init__(self):
+      pass
+       
+   def transKernel(self,N):
+      A = zeros((N,N))
+      for k in xrange(0,N):
+         for n in xrange(0,N):
+            if n == 0:
+               A[n,k] = sqrt(1/float(N)) 
+            else:
+               A[n,k] = sqrt(2/float(N))*cos(pi*(2*k+1)*n/float(2*N))
+      return A
+   
+   def transOverKernel(self,M,N):
+      A = zeros((M,N))
+      for k in xrange(0,N):
+         for n in xrange(0,M):
+            if n == 0:
+               A[n,k] = sqrt(1/float(N)) 
+            else:
+               A[n,k] = sqrt(2/float(N))*cos(pi*(2*k+1)*n/float(2*N))
+      return A
+      
+   def transform(self,s):
+       #(M,N) = m.shape 
+       tk = self.transKernel(len(s))
+       t1 = dot(tk,s)
+       return t1
