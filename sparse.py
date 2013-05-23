@@ -10,6 +10,12 @@ def zero_norm(x, epsilon = 0.00001):
    """
    return sum(abs(x) >= epsilon)
 
+def one_norm(x):
+   """
+   Compute element-wise 1-norm
+   """
+   return sum(abs(x))
+
 def zero_idx(x, epsilon = 0.00001):
    """
    Get indices of zero elements 

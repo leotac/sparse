@@ -136,20 +136,22 @@ def ADMM_ConstrBP(A,s,epsilon):
 
 
 
-def ADMM_RPCA(D):
+def ADMM_RPCA(D, max_it=10):
    """
    Alternating Direction Method of Multipliers for 
    Robust Principal Component Analysis (a.k.a. Principal Component Pursuit)
       min ||X||_* + lambda*||Y||_1 s.t. X + Y = D
    """
+
+   #TODO sparse!
    (M,N) = D.shape
    X,Y,Z = zeros((M,N)), zeros((M,N)), zeros((M,N))
-   max_it = 1000
 
    l = 1 / sqrt(max(M,N)) #TODO
-   rho = l  #TODO
+   print l
+   rho = float(M)*N/(4*sparse.one_norm(D))
+   print rho
    k = 0
-   Xs,Ys,Zs = [X],[Y],[Z]
 
    epsilon = 0.0000001 * linalg.norm(D)
    residual = epsilon * 100
@@ -157,31 +159,28 @@ def ADMM_RPCA(D):
    
    while k <= max_it and residual >= epsilon:
       # Update X
-      S = D - Ys[k]- Zs[k]
-      U,sigma,Vh = linalg.svd(S, full_matrices=False)
-      M = diag(sparse.shrinkage(sigma,1/rho))
-      X_star = dot(dot(U, M),Vh)
-      Xs.append(X_star)
+      print "SVD it"
+      U,sigma,Vh = linalg.svd(D - Y - Z, full_matrices=False)
+      print "Get X"
+      X = dot(dot(U, diag(sparse.shrinkage(sigma,1/rho))),Vh)
      
-      #print X_star, Zs[k]
       # Update Y
       # Element-wise shrinkage
-      Y_star = sparse.shrinkage(D - Xs[k+1] - Zs[k],  l/rho)
-      Ys.append(Y_star)
+      print "Shrink it"
+      Y = sparse.shrinkage(D - X - Z,  l/rho)
    
       # Update Z 
-      Z_star = Zs[k] + Xs[k+1] + Ys[k+1] - D
-      Zs.append(Z_star)
-      
-      residual = linalg.norm(D - X_star - Y_star)
-
-      # OK, it's feasible, and who tells me it's optimal?i TODO
+      Z = Z + X + Y - D
+     
+      print "Norm it"
+      residual = linalg.norm(D - X - Y)
+      # OK, checking feasibility. Guarantees on optimality? TODO
 
       #print k, 1/2*linalg.norm(dot(A,x_star)-s) + l*linalg.norm(x_star,1)
  
       k += 1
       
-      print k, residual, sum(Y_star!=0) 
+      print k, residual, sum(Y!=0) 
  
-   return Xs[k], Ys[k]
+   return X, Y
 
