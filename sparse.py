@@ -8,7 +8,7 @@ def zero_norm(x, epsilon = 0.00001):
    """
    Compute 0-norm with precision epsilon
    """
-   return sum(1 for i in x if abs(i) >= epsilon)
+   return sum(abs(x) >= epsilon)
 
 def zero_idx(x, epsilon = 0.00001):
    """
@@ -44,7 +44,8 @@ def nonzero_idx(x, epsilon = 0.00001):
 
 def shrinkage(z,gamma):
    """
-   Shrinkage
+   Shrinkage operator.
+   Work correctly for vector and matrices, element-wise.
    """
    return sign(z) * maximum(zeros(z.shape), abs(z) - gamma)
 

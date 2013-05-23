@@ -9,6 +9,8 @@ def ADMM_BPDN(A,s,l):
    Alternating Direction Method of Multipliers for Basis Pursuit Denoising
    Solve the problem:
       min 1/2 ||Ax-s||^2 + lambda*||x||_1
+   transformed into:
+      min 1/2 ||Ax-s||^2 + lambda*||y||_1 s.t. x = y
    """
    (M,N) = A.shape
    x,y,u = zeros((N,1)), zeros((N,1)), zeros((N,1))
@@ -64,7 +66,9 @@ def ADMM_ConstrBP(A,s,epsilon):
    Alternating Direction Method of Multipliers for Constrained Basis Pursuit
    Solve the problem:
       min ||x||_1 s.t. ||Ax-s||_2 <= epsilon
-   i.e., find the minimum-norm vector s.t. the error from s is under epsilon
+   i.e., find the minimum-norm vector s.t. the reconstruction error is under epsilon.
+   The problem is transformed into:
+      min ||y||_1 + 1/2||z-s||_2 s.t x = y, Ax = z
    """
    (M,N) = A.shape
    x,y,z,u,v = zeros((N,1)), zeros((N,1)), zeros((M,1)), zeros((N,1)), zeros((M,1))
@@ -88,7 +92,7 @@ def ADMM_ConstrBP(A,s,epsilon):
    epsi_rel = 0.001
    epsi_abs = 0.0001
    
-   while k <= max_it:
+   while k <= max_it: #TODO stopping criterion
       # Update x
       rhs = gamma*(yks[k] - uks[k]) + sigma*dot(A.T,(zks[k]-vks[k]))
       x_star = solve.lemma_solve(A,rhs,gamma,PL,U)
@@ -129,4 +133,55 @@ def ADMM_ConstrBP(A,s,epsilon):
       print prim_epsi, dual_epsi
  
    return xks[k]
+
+
+
+def ADMM_RPCA(D):
+   """
+   Alternating Direction Method of Multipliers for 
+   Robust Principal Component Analysis (a.k.a. Principal Component Pursuit)
+      min ||X||_* + lambda*||Y||_1 s.t. X + Y = D
+   """
+   (M,N) = D.shape
+   X,Y,Z = zeros((M,N)), zeros((M,N)), zeros((M,N))
+   max_it = 1000
+
+   l = 1 / sqrt(max(M,N)) #TODO
+   rho = l  #TODO
+   k = 0
+   Xs,Ys,Zs = [X],[Y],[Z]
+
+   epsilon = 0.0000001 * linalg.norm(D)
+   residual = epsilon * 100
+   print epsilon
+   
+   while k <= max_it and residual >= epsilon:
+      # Update X
+      S = D - Ys[k]- Zs[k]
+      U,sigma,Vh = linalg.svd(S, full_matrices=False)
+      M = diag(sparse.shrinkage(sigma,1/rho))
+      X_star = dot(dot(U, M),Vh)
+      Xs.append(X_star)
+     
+      #print X_star, Zs[k]
+      # Update Y
+      # Element-wise shrinkage
+      Y_star = sparse.shrinkage(D - Xs[k+1] - Zs[k],  l/rho)
+      Ys.append(Y_star)
+   
+      # Update Z 
+      Z_star = Zs[k] + Xs[k+1] + Ys[k+1] - D
+      Zs.append(Z_star)
+      
+      residual = linalg.norm(D - X_star - Y_star)
+
+      # OK, it's feasible, and who tells me it's optimal?i TODO
+
+      #print k, 1/2*linalg.norm(dot(A,x_star)-s) + l*linalg.norm(x_star,1)
+ 
+      k += 1
+      
+      print k, residual, sum(Y_star!=0) 
+ 
+   return Xs[k], Ys[k]
 
