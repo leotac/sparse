@@ -23,11 +23,13 @@ Dictionary Learning
 Basis Pursuit
 ============
 - Constrained version: test, dbg
-- Apply BP to classification - [X]. Slow, but it seems to work.
-   Use 'labeled' pictures as dictionary atoms.
-   Use picture to classify as 's'.
-   Recover sparse x_str [takes a while..].
-   Get label of argmax over x - or some more sofisticated measure.
+- Apply BP to classification - [X]. Slow, but it seems to work.  
+   Use 'labeled' pictures as dictionary atoms.  
+   Use picture to classify as 's'.  
+   Recover sparse x_str [takes a while..].  
+   Get label of argmax over x - or some more sofisticated measure.  
+
+
 (O)MP
 =====
 - MMV version
