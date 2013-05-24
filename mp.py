@@ -20,7 +20,7 @@ def mp(B,s,epsilon):
    #for k in range(N):
    #   A[:,k] /= linalg.norm(A[:,k])
 
-   while i <= max_it and linalg.norm(r) >= epsilon:
+   while i < max_it and linalg.norm(r) >= epsilon:
       k_hat = argmax([abs(dot(A[:,k],r)/linalg.norm(A[:,k])) for k in range(N)])
       x_hat = dot(A[:,k_hat],r)/dot(A[:,k_hat],A[:,k_hat])
  
@@ -70,7 +70,7 @@ def omp(AA,s,epsilon=None, L=None):
    #   A[:,k] /= linalg.norm(A[:,k])
 
    columns = []
-   while i <= max_it and linalg.norm(r) >= epsilon and len(columns) < L:
+   while i < max_it and linalg.norm(r) >= epsilon and len(columns) < L:
       k_hat = argmax([abs(dot(A[:,k],r)/linalg.norm(A[:,k])) for k in range(N)])
       columns.append(k_hat)
       # Select columns corresponding to nonzero coefficients

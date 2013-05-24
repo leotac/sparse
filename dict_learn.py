@@ -8,17 +8,18 @@ import scipy.sparse.linalg
 import sklearn.linear_model
 
 def ksvd(AA,S,max_iter=10):
+"""
+Apply KSVD from the starting dictionary AA, given a set of signals S.
+"""   
    M,N = AA.shape
    P = S.shape[1]
-   #print P 
    A = AA.copy()
    X = zeros((N,P))
 
    #max_iter = 10
    i = 0
-   while i <= max_iter:
-      
-      # SMV
+   while i < max_iter:
+      # SMV, and slow.
       #for p in range(P):
       #   X[:,p] = mp.omp(A,S[:,p].reshape(M,1),0.1).flatten()
      
@@ -27,36 +28,21 @@ def ksvd(AA,S,max_iter=10):
       # Assume dictionary A is normalized! 
       X = sklearn.linear_model.orthogonal_mp(A,S)
       
-      #print A,X
-      print "-----------------"
-      print i,linalg.norm(S - dot(A,X))
-      #print X, "--" 
-      print sum([sparse.zero_norm(X[:,p],0.01) for p in range(P)]) 
-      print "--"
+      print i,linalg.norm(S - dot(A,X)), sum([sparse.zero_norm(X[:,p],0.01) for p in range(P)]) 
 
       for l in range(N):
-         #E = S - dot(A,X) + dot(A[:,l].reshape(M,1),X[l,:].reshape(1,P))
-
-         nonzeros = sparse.nonzero_idx(X[l,:]) # xs witth nonzero in row 'l'
+         nonzeros = sparse.nonzero_idx(X[l,:]) # xs with nonzero in row 'l'
          if len(nonzeros) == 0:
             continue
          E_w = S[:,nonzeros] - dot(A,X[:,nonzeros]) + dot(A[:,l].reshape(M,1),X[l,nonzeros].reshape(1,len(nonzeros)))
 
-         #print "S,AX", concatenate((S,dot(A,X)),axis=1) 
-         #print dot(A[:,l].reshape(M,1),X[l,:].reshape(1,P)) 
-         
-         #u,s,v = scipy.sparse.linalg.svds(E, k = 1)
          try:
             u,s,v = scipy.sparse.linalg.svds(E_w, k = 1)
          except:
             continue
-         #print "e",E
-         #print "USV", u,s,v
          A[:,l] = u.flatten()
          X[l,nonzeros] = s*v.flatten()
 
-
-      print "--"
       i += 1
 
    return A, X

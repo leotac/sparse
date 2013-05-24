@@ -37,17 +37,19 @@ def run_fun(M,N,fun,x,seed=1):
 # Find x s.t. (A'A + p*I)x = rhs
 #
 ##################################
-
 def direct_solve(A,rhs,p):
    # Solve directly
    (M,N) = A.shape
-   x = linalg.solve(dot(A.T,A) + p*eye(N),rhs)
-   return x
+   return linalg.solve(dot(A.T,A) + p*eye(N),rhs)
+
+def lstsq_solve(A,rhs,p):
+   # Solve directly
+   (M,N) = A.shape
+   return linalg.lstsq(dot(A.T,A) + p*eye(N),rhs)[0]
 
 def inverse_solve(A,rhs,p):
    (M,N) = A.shape
-   x = dot(linalg.inv(dot(A.T,A) + p*eye(N)),rhs)
-   return x
+   return dot(linalg.inv(dot(A.T,A) + p*eye(N)),rhs)
 
 def LU_solve(A,rhs,p):
    # Solve with straight LU
@@ -63,13 +65,10 @@ def lemma_solve(A,rhs,p, PL=None, U=None):
    # If given, omit L,U decomposition
    (M,N) = A.shape
    if PL == None or U == None:
-      C = dot(A,A.T) + p*eye(M)
-      PL,U = sp.linalg.lu(C,permute_l=True)
+      PL,U = sp.linalg.lu(dot(A,A.T) + p*eye(M),permute_l=True)
    y = linalg.solve(PL,dot(A,rhs))
    z = linalg.solve(U,y)
-   x = (1/p)*rhs - (1/p)*dot(A.T,z)
-   return x
-
+   return (1/p)*rhs - (1/p)*dot(A.T,z)
 
 if __name__ == '__main__':
     funs = [direct_solve, inverse_solve, LU_solve, lemma_solve]
