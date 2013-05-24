@@ -1,7 +1,7 @@
 RPCA
 ====
-
-- ALM instead of ADMM [see paper] - [?]
+- ALM instead of ADMM [see paper] - [ ]
+- Apply on blocks instead of full picture - [ ]
 - Matrix completion? Adapt RPCA-ADMM - [ ]
 
 SVD in Python
@@ -18,7 +18,7 @@ SVD in Python
 Dictionary Learning
 =================
 - How to test KSVD
-- Other methods
+- Other methods: gradient descent?
 
 Basis Pursuit
 ============
@@ -28,9 +28,9 @@ Basis Pursuit
    Use picture to classify as 's'.  
    Recover sparse x_str [takes a while..].  
    Get label of argmax over x - or some more sofisticated measure.  
+- LARS/LASSO
 
-
-(O)MP
+(O)MP and L-0
 =====
 - MMV version
 - Optimize
