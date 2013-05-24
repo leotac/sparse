@@ -81,10 +81,6 @@ def ADMM_ConstrBP(A,s,epsilon):
    k = 0
    xks,yks,zks,uks,vks = [x],[y],[z],[u],[v]
 
-   # Cached factorizations and computations
-   C = dot(A,A.T) + gamma*eye(M)
-   PL,U = scipy.linalg.lu(C, permute_l=True)
-
    prim_resid = 100
    dual_resid = 100
    prim_epsi = 0
@@ -142,7 +138,6 @@ def ADMM_RPCA(D, max_it=10):
    Robust Principal Component Analysis (a.k.a. Principal Component Pursuit)
       min ||X||_* + lambda*||Y||_1 s.t. X + Y = D
    """
-
    #TODO sparse!
    (M,N) = D.shape
    X,Y,Z = zeros((M,N)), zeros((M,N)), zeros((M,N))
@@ -157,7 +152,7 @@ def ADMM_RPCA(D, max_it=10):
    residual = epsilon * 100
    print epsilon
    
-   while k <= max_it and residual >= epsilon:
+   while k < max_it and residual >= epsilon:
       # Update X
       print "SVD it"
       U,sigma,Vh = linalg.svd(D - Y - Z, full_matrices=False)
@@ -174,6 +169,61 @@ def ADMM_RPCA(D, max_it=10):
      
       print "Norm it"
       residual = linalg.norm(D - X - Y)
+      # OK, checking feasibility. Guarantees on optimality? TODO
+
+      #print k, 1/2*linalg.norm(dot(A,x_star)-s) + l*linalg.norm(x_star,1)
+ 
+      k += 1
+      
+      print k, residual, sum(Y!=0) 
+ 
+   return X, Y
+
+def ADMM_sparse_RPCA(D, max_it=10):
+   """
+   Alternating Direction Method of Multipliers for 
+   Robust Principal Component Analysis (a.k.a. Principal Component Pursuit)
+      min ||X||_* + lambda*||Y||_1 s.t. X + Y = D
+   """
+   (M,N) = D.shape
+   X = zeros((M,N))
+   Y = zeros((M,N))
+   Z = zeros((M,N))
+
+   l = 1 / sqrt(max(M,N))
+   print l
+   rho = float(M)*N/(4*sparse.one_norm(D))
+   print rho
+   k = 0
+   epsilon = 0.0000001 * linalg.norm(D)
+   residual = epsilon * 100
+   print epsilon
+   sv = 20
+   while k < max_it and residual >= epsilon:
+      # Update X
+      print "CSC it"
+      TMP = scipy.sparse.csc_matrix(D-Y-Z)
+      print "SVD it"
+      U,sigma,Vh = scipy.sparse.linalg.svds(TMP, k = sv)
+      print sv, sum(sigma >= 1/rho)
+      if sum(sigma >= 1/rho) < sv:
+         sv += 1
+      else:
+         sv = int(min(sv + (k+1)*0.05*N,N))
+
+      print "Get X"
+      X = dot(dot(U, diag(sparse.shrinkage(sigma,1/rho))),Vh)
+
+      # Update Y
+      # Element-wise shrinkage
+      print "Shrink it"
+      Y = sparse.shrinkage(D - X - Z,  l/rho)
+   
+      # Update Z 
+      Z = Z + X + Y - D
+     
+      print "Norm it"
+      residual = linalg.norm(D-X-Y)
       # OK, checking feasibility. Guarantees on optimality? TODO
 
       #print k, 1/2*linalg.norm(dot(A,x_star)-s) + l*linalg.norm(x_star,1)

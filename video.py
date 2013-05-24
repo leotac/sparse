@@ -10,7 +10,7 @@ def read_frames():
    for i in range(N):
       im = Image.open("frames/frame"+str(i)+".png")
       im = im.convert('L')
-      mat = numpy.array(im.getdata()))
+      mat = numpy.array(im.getdata())
       A[:,i] = mat
    return A
 
